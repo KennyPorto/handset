@@ -41,7 +41,18 @@ Handset doesn't need KDE Connect or any app on the phone.
 
 ## Install
 
-Handset will be on Flathub soon. Until then, build the Flatpak yourself:
+**From FlatPark** (gets updates; Handset is [waiting to be added](https://github.com/flatpark/flatpark/pull/1556)):
+
+```sh
+flatpak --user remote-add --if-not-exists flatpark https://dl.flatpark.org/flatpark.flatpakrepo
+flatpak --user install flatpark io.github.kennyporto.Handset
+```
+
+**Single file:** download `Handset-<version>-x86_64.flatpak` from the
+[latest release](https://github.com/KennyPorto/handset/releases/latest) and run
+`flatpak install Handset-*.flatpak`. It doesn't update itself.
+
+**Build it yourself:**
 
 ```sh
 flatpak install flathub org.flatpak.Builder
