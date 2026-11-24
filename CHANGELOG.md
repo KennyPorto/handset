@@ -6,12 +6,7 @@ All notable changes to Handset are listed here. The format follows
 
 ## [Unreleased]
 
-### Fixed
-
-- Opening Handset while it is already running shows the open window instead
-  of starting a second copy.
-
-## [0.1.0] - 2026-11-23
+## [0.1.0] - 2026-11-24
 
 First release.
 
