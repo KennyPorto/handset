@@ -1,0 +1,21 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      # Qt's GUI libraries need these to import, even though no window opens.
+      - run: sudo apt-get update && sudo apt-get install -y libegl1 libxkbcommon0
+      - run: pip install -e . pytest
+      - run: pytest
+        env:
+          QT_QPA_PLATFORM: offscreen

@@ -1,0 +1,26 @@
+# Changelog
+
+All notable changes to Handset are listed here. The format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
+[Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+### Fixed
+
+- Opening Handset while it is already running shows the open window instead
+  of starting a second copy.
+
+## [0.1.0] - 2026-11-23
+
+First release.
+
+### Added
+
+- Answer, decline and end calls from the window or from the notification.
+- Dial pad for outgoing calls.
+- Caller names, the phone's favourites and recent calls, and a searchable contact list,
+  when the phone shares its contacts.
+- Mute, keypad tones (DTMF), call waiting and hold.
+- Connects the phone for calls only, so media audio stays on the phone.
+- Tray icon, and Start at Login through the desktop's background portal.

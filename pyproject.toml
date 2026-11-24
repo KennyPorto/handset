@@ -1,0 +1,32 @@
+[project]
+name = "handset"
+version = "0.1.0"
+description = "Answer your phone calls on your PC"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "KennyPorto" }]
+requires-python = ">=3.11"
+dependencies = ["PySide6>=6.8", "jeepney>=0.8"]
+
+[project.urls]
+Homepage = "https://github.com/KennyPorto/handset"
+Issues = "https://github.com/KennyPorto/handset/issues"
+
+[project.gui-scripts]
+handset = "handset.app:main"
+
+[dependency-groups]
+dev = ["pytest"]
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["handset"]
+
+[tool.setuptools.package-data]
+handset = ["qml/*.qml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

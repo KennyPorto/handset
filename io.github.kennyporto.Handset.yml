@@ -1,0 +1,48 @@
+app-id: io.github.kennyporto.Handset
+runtime: org.kde.Platform
+runtime-version: '6.11'
+sdk: org.kde.Sdk
+base: io.qt.PySide.BaseApp
+base-version: '6.11'
+command: handset
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  # Calls (PipeWire telephony), notifications with buttons, tray icon
+  - --talk-name=org.pipewire.Telephony
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.kde.StatusNotifierWatcher
+  # Contacts, from the phone over Bluetooth (optional)
+  - --talk-name=org.bluez.obex
+  # Connecting the phone's hands-free profile
+  - --system-talk-name=org.bluez
+
+cleanup-commands:
+  - /app/cleanup-BaseApp.sh
+
+modules:
+  - name: jeepney
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app --no-deps --no-index --no-build-isolation jeepney-0.9.0-py3-none-any.whl
+    sources:
+      - type: file
+        url: https://files.pythonhosted.org/packages/py3/j/jeepney/jeepney-0.9.0-py3-none-any.whl
+        sha256: 97e5714520c16fc0a45695e5365a2e11b81ea79bba796e26f9f1d178cb182683
+
+  - name: handset
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app --no-deps --no-index --no-build-isolation .
+      - install -Dm644 data/io.github.kennyporto.Handset.desktop -t /app/share/applications
+      - install -Dm644 data/io.github.kennyporto.Handset.metainfo.xml -t /app/share/metainfo
+      - install -Dm644 data/io.github.kennyporto.Handset.svg -t /app/share/icons/hicolor/scalable/apps
+    sources:
+      - type: dir
+        path: .
+        skip:
+          - .venv
+          - build
+          - .flatpak-builder
