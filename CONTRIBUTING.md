@@ -2,18 +2,29 @@
 
 Thanks for wanting to help. Handset is a small project, so the process is light.
 
-## Reporting a bug
+## Opening an issue
 
-Please include:
+Go to [New issue](https://github.com/KennyPorto/handset/issues/new/choose) and pick one:
 
-- your distribution and desktop, and the output of `pipewire --version`
-- your phone model
-- what you did, what you expected and what happened
-- the output of `busctl --user tree org.pipewire.Telephony` while the phone is connected
-- anything Handset printed, if you started it from a terminal
-  (`flatpak run io.github.kennyporto.Handset`)
+- **Bug report**: something doesn't work. The form asks for your phone, distribution and
+  PipeWire version, and for the log. Before you paste logs, remove any phone numbers.
+- **Feature idea**: something you'd like Handset to do.
+- **Works (or not) with my phone**: no issue needed. Comment on
+  [#2](https://github.com/KennyPorto/handset/issues/2) so others know which phones work.
 
-Before you paste logs, remove any phone numbers.
+## What happens next
+
+Every issue goes onto the [Handset Roadmap](https://github.com/users/KennyPorto/projects/4)
+board, where you can follow it:
+
+**Backlog** (not planned yet) → **Ready** (planned) → **In progress** → **In review**
+(being tested) → **Done** (shipped in a release)
+
+Each one also gets a priority: **P0** is broken for users and gets fixed first, **P1** is
+next up and **P2** is nice to have. Closing an issue moves it to Done on its own.
+
+If I need more information, I'll ask in the issue. One that gets no reply for a month may be
+closed, and you can reopen it any time.
 
 ## Changing code
 

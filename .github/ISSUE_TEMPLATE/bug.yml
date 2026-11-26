@@ -33,5 +33,5 @@ body:
   - type: textarea
     attributes:
       label: Log
-      description: Run `flatpak run io.github.kennyporto.Handset` in a terminal, reproduce the problem, and paste the output.
+      description: Run `flatpak run io.github.kennyporto.Handset` in a terminal, reproduce the problem, and paste the output. If calls don't show up at all, also paste `busctl --user tree org.pipewire.Telephony` while the phone is connected. Remove any phone numbers first.
       render: text
