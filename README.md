@@ -41,7 +41,7 @@ Handset doesn't need KDE Connect or any app on the phone.
 
 ## Install
 
-**From FlatPark** (gets updates; Handset is [waiting to be added](https://github.com/flatpark/flatpark/pull/1556)):
+**From [FlatPark](https://flatpark.org/apps/io.github.kennyporto.Handset/)** (gets updates):
 
 ```sh
 flatpak --user remote-add --if-not-exists flatpark https://dl.flatpark.org/flatpark.flatpakrepo

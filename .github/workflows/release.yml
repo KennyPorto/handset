@@ -1,11 +1,17 @@
 name: Release
 
-# On a version tag: build the Flatpak, pack the FlatPark archive from that build,
-# attest where it came from, and attach it to the tag's GitHub release.
+# On a version tag: build the Flatpak, make the single-file bundle and the FlatPark
+# archive from that build, attest them, and attach them to the tag's GitHub release.
 on:
   push:
     tags: ["v*"]
-  workflow_dispatch:  # test run: builds and attests, attaches nothing
+  # Manual run: builds an existing tag and adds only the files its release lacks
+  # (never replaces one: FlatPark pins the archive's sha256). Empty tag = test build.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to complete, e.g. v0.1.1
+        required: false
 
 permissions:
   contents: write
@@ -17,20 +23,33 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.tag || github.ref }}
       - run: sudo apt-get update && sudo apt-get install -y flatpak flatpak-builder
       - run: flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
       - run: >
           flatpak-builder --user --install-deps-from=flathub --disable-rofiles-fuse
-          --force-clean build io.github.kennyporto.Handset.yml
+          --force-clean --repo=repo build io.github.kennyporto.Handset.yml
+      - name: Single-file bundle
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: >
+          flatpak build-bundle repo "Handset-${TAG#v}-x86_64.flatpak" io.github.kennyporto.Handset
+          --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo
       - run: sh scripts/flatpark-tarball.sh build/files
       - uses: actions/attest-build-provenance@v3
         with:
-          subject-path: handset-linux-x86_64-flatpark.tar.gz
+          subject-path: |
+            handset-linux-x86_64-flatpark.tar.gz
+            Handset-*-x86_64.flatpak
       - name: Attach to the release
-        if: github.ref_type == 'tag'
+        if: github.ref_type == 'tag' || inputs.tag != ''
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "Handset ${TAG#v}" --generate-notes
-          gh release upload "$TAG" handset-linux-x86_64-flatpark.tar.gz --clobber
+          have="$(gh release view "$TAG" --json assets --jq '.assets[].name')"
+          for f in handset-linux-x86_64-flatpark.tar.gz Handset-*-x86_64.flatpak; do
+            printf '%s\n' "$have" | grep -qxF "$f" && echo "keeping existing $f" || gh release upload "$TAG" "$f"
+          done
