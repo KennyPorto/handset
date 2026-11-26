@@ -168,6 +168,13 @@ The interface uses KDE's Kirigami, which isn't on PyPI, so run the app through t
 Bug reports and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md)
 first.
 
+If Handset is useful to you, a like or a review on AlternativeTo helps other people find it.
+
+<a href="https://alternativeto.net/software/handset/about/"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://alternativeto.net/static/badges/badge-compact-dark.svg">
+  <img src="https://alternativeto.net/static/badges/badge-compact-light.svg" height="40" alt="Handset on AlternativeTo">
+</picture></a>
+
 ## License
 
 [MIT](LICENSE) © 2026 KennyPorto
