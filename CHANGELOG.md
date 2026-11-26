@@ -6,6 +6,8 @@ All notable changes to Handset are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-26
+
 ### Changed
 
 - The FlatPark download is about a quarter of its old size (8 MB instead of 30 MB): it no longer ships FFmpeg and Qt build tools that Handset never uses.

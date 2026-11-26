@@ -1,6 +1,6 @@
 [project]
 name = "handset"
-version = "0.1.0"
+version = "0.1.1"
 description = "Answer your phone calls on your PC"
 readme = "README.md"
 license = "MIT"

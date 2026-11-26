@@ -91,6 +91,14 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
+    <release version="0.1.1" date="2026-11-26">
+      <description>
+        <ul>
+          <li>Smaller download: about 8 MB instead of 30 MB</li>
+          <li>Release files are now built and verified by GitHub Actions</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.1.0" date="2026-11-24">
       <description>
         <p>First release.</p>
