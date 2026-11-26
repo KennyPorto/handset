@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Works (or not) with my phone
+    url: https://github.com/KennyPorto/handset/issues/2
+    about: Share which phone you use, so others know what works.

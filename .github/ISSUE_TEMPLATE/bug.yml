@@ -1,0 +1,37 @@
+name: Bug report
+description: Something doesn't work
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Phone
+      placeholder: e.g. Pixel 8, Android 15
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Distro and desktop
+      placeholder: e.g. Fedora 43, GNOME
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: PipeWire version
+      description: Output of `pipewire --version`
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Handset version
+      description: Shown in the app's About dialog
+  - type: textarea
+    attributes:
+      label: Log
+      description: Run `flatpak run io.github.kennyporto.Handset` in a terminal, reproduce the problem, and paste the output.
+      render: text
