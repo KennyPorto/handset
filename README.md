@@ -39,6 +39,10 @@ iPhones. I use it with a OnePlus 13 on Bazzite (KDE Plasma).
 
 Handset doesn't need KDE Connect or any app on the phone.
 
+Mute requires PipeWire to expose `MicrophoneVolume` on its telephony audio gateway;
+the upstream PipeWire 1.4 series does not expose this property. Calls still work,
+but use the system sound controls to mute the microphone on those versions.
+
 ## Install
 
 **From [FlatPark](https://flatpark.org/apps/io.github.kennyporto.Handset/)** (gets updates):

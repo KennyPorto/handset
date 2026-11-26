@@ -62,12 +62,12 @@ class Telephony:
         """Return (phones, calls). Both are empty when no phone is connected."""
         try:
             (modems,) = self._call(ROOT, "org.ofono.Manager", "GetModems")
-            phones = [path for path, _ in modems]
+            phones = list(modems)
             calls = []
             for phone in phones:
                 (found,) = self._call(phone, "org.ofono.VoiceCallManager", "GetCalls")
                 calls += [Call(path, prop(p, "LineIdentification"), prop(p, "Name"),
-                               prop(p, "State")) for path, p in found]
+                               prop(p, "State")) for path, p in found.items()]
             return phones, calls
         except DBusErrorResponse:
             # WirePlumber is restarting, or its telephony support is turned off.
@@ -88,16 +88,16 @@ class Telephony:
         self._call(call.path, "org.ofono.VoiceCall", "Hangup")
 
     def dial(self, phone, number):
-        self._call(phone, "org.ofono.VoiceCallManager", "Dial", "ss", number, "default")
+        self._call(phone, "org.ofono.VoiceCallManager", "Dial", "s", number)
 
     def send_tones(self, phone, tones):
         self._call(phone, "org.ofono.VoiceCallManager", "SendTones", "s", tones)
 
-    # PipeWire has no CallVolume "Muted", so mute is microphone volume 0. That silences
-    # the PC's mic stream and tells the phone (AT+VGM=0).
+    # PipeWire exposes microphone volume on AudioGateway1, rather than CallVolume.
     def _mic_volume(self, phone):
-        (props,) = self._call(phone, "org.ofono.CallVolume", "GetProperties")
-        return prop(props, "MicrophoneVolume", 100)
+        (value,) = self._call(phone, "org.freedesktop.DBus.Properties", "Get", "ss",
+                              "org.pipewire.Telephony.AudioGateway1", "MicrophoneVolume")
+        return value[1]
 
     def muted(self, phone):
         return self._mic_volume(phone) == 0
@@ -107,8 +107,9 @@ class Telephony:
         if muted and volume:
             self._unmuted_volume = volume
         elif not muted and not volume:
-            volume = getattr(self, "_unmuted_volume", 100)
-        self._call(phone, "org.ofono.CallVolume", "SetProperty", "sv", "MicrophoneVolume",
+            volume = getattr(self, "_unmuted_volume", 15)
+        self._call(phone, "org.freedesktop.DBus.Properties", "Set", "ssv",
+                   "org.pipewire.Telephony.AudioGateway1", "MicrophoneVolume",
                    ("y", 0 if muted else volume))
 
 

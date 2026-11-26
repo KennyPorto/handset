@@ -6,6 +6,10 @@ All notable changes to Handset are listed here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Handle PipeWire's telephony D-Bus responses, dialing and microphone volume interface.
+
 ## [0.1.1] - 2026-11-26
 
 ### Changed
