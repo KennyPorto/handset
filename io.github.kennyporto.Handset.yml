@@ -9,6 +9,8 @@ finish-args:
   - --share=ipc
   - --socket=wayland
   - --socket=fallback-x11
+  # Optional echo cancellation routes only the connected phone's call streams.
+  - --socket=pulseaudio
   - --device=dri
   # Calls (PipeWire telephony), notifications with buttons, tray icon
   - --talk-name=org.pipewire.Telephony

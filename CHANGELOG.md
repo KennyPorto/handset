@@ -6,6 +6,10 @@ All notable changes to Handset are listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Optional echo cancellation for calls played through speakers.
+
 ## [0.1.1] - 2026-11-26
 
 ### Changed

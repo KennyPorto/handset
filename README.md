@@ -24,6 +24,7 @@ call comes through on the computer, and I answer it with one click.
 - Caller names, plus your phone's favourites, recent calls and contacts to call from, if the
   phone shares them (optional)
 - Mute, keypad tones (for menus like "press 1 for…"), call waiting and hold
+- Optional echo cancellation for speakerphone calls
 - Lives in the system tray and can start when you log in
 - Connects for **calls only**, so your phone's music and videos keep playing on the phone
 
@@ -70,6 +71,12 @@ flatpak run io.github.kennyporto.Handset
 When a call comes in, a notification appears with **Answer** and **Decline**, and the
 Handset window comes to the front. The call audio uses your default microphone and speakers
 or headset, which you can change in the system sound settings at any time.
+
+If callers hear their own voices through your speakers, turn on **Echo Cancellation** in
+the menu. Handset uses PipeWire's WebRTC echo canceller for the phone's call audio. It
+needs `pactl` and the PipeWire WebRTC echo-cancellation plugin. Other applications keep
+their existing audio routing. If you change the call's audio device during a call, echo
+cancellation stops for that call; it will be tried again on the next call.
 
 **Contacts are optional.** To see names instead of numbers, allow contact sharing for this
 PC in the phone's Bluetooth settings (on Android: tap the gear next to the PC, then turn on
@@ -146,6 +153,10 @@ selected.
 
 Handset doesn't use the network. Caller numbers stay between your phone, your PC and the
 notification on your screen, and calls aren't logged anywhere.
+
+The Flatpak has access to the audio server so it can route call audio for optional echo
+cancellation. Its audio helper requests manager access, which allows control of the full
+audio graph as well as access to audio devices and streams.
 
 If you turn on contact sharing, Handset keeps a copy of the names and phone numbers (nothing
 else), which ones are favourites, and the last 30 numbers you called or that called you, in `~/.var/app/io.github.kennyporto.Handset/cache/handset/contacts.json`, readable only
