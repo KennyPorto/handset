@@ -20,6 +20,7 @@ from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 from . import __version__
 from .contacts import Contacts, download
 from .desktop import ACTION_INVOKED, APP_ID, Notifier, request_autostart
+from .echo import EchoWorker
 from .telephony import ROOT, Bluetooth, Telephony
 
 QML_DIR = Path(__file__).parent / "qml"
@@ -68,6 +69,7 @@ class Backend(QObject):
     _connect_finished = Signal(str)
     _contacts_finished = Signal(object, bool)  # phonebook (None on failure), asked by the user
     _autostart_finished = Signal(object, bool)  # now on (None: no portal), asked for
+    _echo_error = Signal(str)
 
     def __init__(self):
         super().__init__()
@@ -76,6 +78,8 @@ class Backend(QObject):
         self.notifier = Notifier(conn)
         self.bluetooth = Bluetooth()
         self.settings = QSettings()
+        self._echo_worker = None
+        self._echo_error.connect(self._on_echo_error)
         self._phones, self._calls = [], []
         self._phone_name = ""
         self._active_since = {}   # call path -> ms since epoch, for the call timer
@@ -100,6 +104,8 @@ class Backend(QObject):
     muted = Property(bool, lambda self: self._muted, notify=changed)
     version = Property(str, lambda self: __version__, constant=True)
     autostart = Property(bool, lambda self: self.settings.value("autostart", False, bool), notify=changed)
+    echoCancellation = Property(bool, lambda self: self.settings.value("echoCancellation", False, bool),
+                                notify=changed)
 
     syncingContacts = Property(bool, lambda self: self._syncing, notify=contactsChanged)
     useContacts = Property(bool, lambda self: self.settings.value("useContacts", True, bool),
@@ -125,6 +131,7 @@ class Backend(QObject):
         if phones != self._phones:
             self._phone_name = self._lookup_name(phones)
         self._phones, self._calls = phones, calls
+        self._update_echo()
         if call_ended and self._muted and phones:
             # PipeWire keeps the mic volume, so the next call would start muted, and its
             # AT+VGM=0 at ring time can block Answer.
@@ -187,6 +194,33 @@ class Backend(QObject):
             return False
 
     # Actions
+
+    def _update_echo(self):
+        address = None
+        if self.echoCancellation and self._calls:
+            try:
+                address = self.telephony.address(self._calls[0].phone)
+            except DBusErrorResponse:
+                pass
+        if address and self._echo_worker is None:
+            self._echo_worker = EchoWorker(self._echo_error.emit)
+        if self._echo_worker:
+            self._echo_worker.update(address)
+
+    @Slot(str)
+    def _on_echo_error(self, error):
+        print(f"handset: echo cancellation: {error}", file=sys.stderr)
+        self.message.emit("Echo cancellation unavailable: " + error)
+
+    @Slot(bool)
+    def setEchoCancellation(self, enable):
+        self.settings.setValue("echoCancellation", enable)
+        self._update_echo()
+        self.changed.emit()
+
+    def close(self):
+        if self._echo_worker:
+            self._echo_worker.close()
 
     @Slot(str)
     def answer(self, path):
@@ -377,6 +411,7 @@ def main():
         QQuickStyle.setStyle("org.kde.desktop")
 
     backend = Backend()
+    app.aboutToQuit.connect(backend.close)
     engine = QQmlApplicationEngine()
     engine.setInitialProperties({"backend": backend})
     engine.load(QUrl.fromLocalFile(str(QML_DIR / "Main.qml")))

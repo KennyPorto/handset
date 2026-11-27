@@ -134,3 +134,33 @@ def test_start_at_login_follows_the_desktops_answer(setup, monkeypatch):
     backend.setAutostart(False)
     backend.setAutostart(True)
     assert not backend.autostart and len(messages) == 1
+
+
+def test_echo_cancellation_tracks_calls_and_user_setting(setup, monkeypatch):
+    backend, phones, _ = setup
+    phones.append(PHONE)
+    call = Call(PHONE + "/call1", "123", "", "active")
+    backend.telephony.state = lambda: (list(phones), [call])
+    backend.telephony.muted = lambda phone: False
+    updates = []
+
+    class Worker:
+        def __init__(self, notify):
+            pass
+
+        def update(self, address):
+            updates.append(address)
+
+        def close(self):
+            updates.append("closed")
+
+    monkeypatch.setattr(app, "EchoWorker", Worker)
+    backend.refresh()
+    assert updates == []  # off by default
+    backend.setEchoCancellation(True)
+    assert updates == ["AA:BB:CC:DD:EE:FF"]
+    backend.telephony.state = lambda: (list(phones), [])
+    backend.refresh()
+    assert updates[-1] is None
+    backend.close()
+    assert updates[-1] == "closed"

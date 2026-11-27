@@ -42,6 +42,14 @@ Kirigami.ApplicationWindow {
 
         actions: [
             Kirigami.Action {
+                text: "Echo Cancellation"
+                icon.name: "audio-input-microphone"
+                checkable: true
+                checked: root.backend.echoCancellation
+                displayHint: Kirigami.DisplayHint.AlwaysHide
+                onTriggered: root.backend.setEchoCancellation(checked)
+            },
+            Kirigami.Action {
                 text: "Start at Login"
                 icon.name: "system-run"
                 checkable: true

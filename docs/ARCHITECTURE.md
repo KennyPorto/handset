@@ -16,6 +16,7 @@ does the Bluetooth hands-free work, and Handset is a front end for it.
 | `handset/telephony.py` | D-Bus calls to PipeWire's telephony service (calls, answer, dial, mute) and to BlueZ (connect the hands-free profile only). No Qt here, so it's easy to test. |
 | `handset/contacts.py` | Fetching the phone's contacts over PBAP through `obexd`, a small vCard reader, and the saved copy used to put names on calls. Also Qt-free. |
 | `handset/desktop.py` | Notifications with Answer/Decline buttons, and the Background portal request for starting at login. |
+| `handset/echo.py` | Optional call-specific PipeWire echo cancellation through the PulseAudio compatibility server. |
 | `handset/app.py` | The `Backend` object that QML talks to, the D-Bus signal watcher thread, the tray icon and `main()`. |
 | `handset/qml/` | The interface: `Main.qml` (window, menu and tabs), `CallView.qml`, `Dialer.qml`, `Contacts.qml`, `Keypad.qml`, `CallButton.qml`, `Avatar.qml`. |
 | `data/` | Desktop entry, AppStream metadata and icon. |
@@ -36,6 +37,14 @@ does the Bluetooth hands-free work, and Handset is a front end for it.
 
 Bluetooth connects can take several seconds, so `connectPhone()` runs in a short-lived thread
 with its own system bus connection.
+
+When echo cancellation is enabled, a worker looks for the connected phone's HFP capture and
+playback streams. It loads a temporary echo-cancellation module using those streams' current
+devices and moves only those streams to it. On hangup or disable it restores streams still
+using the filter and unloads the module. It leaves a device selected during the call alone.
+PipeWire and the WebRTC echo plugin are required; call control continues if setup fails.
+The helper requests the PipeWire manager role because Flatpak clients otherwise cannot
+move streams owned by WirePlumber. A session manager can deny that role.
 
 ## Contacts
 
@@ -79,6 +88,7 @@ where Android serves PBAP.
 | Permission | Why |
 | --- | --- |
 | `--talk-name=org.pipewire.Telephony` | Calls |
+| `--socket=pulseaudio` | Optional echo cancellation and routing of call audio |
 | `--system-talk-name=org.bluez` | Connecting and disconnecting the phone |
 | `--talk-name=org.freedesktop.Notifications` | Notifications with Answer/Decline buttons (the notification portal doesn't support resident, critical notifications yet) |
 | `--talk-name=org.kde.StatusNotifierWatcher` | Tray icon |
