@@ -17,6 +17,12 @@ ROOT = "/org/pipewire/Telephony"
 HFP_AG_UUID = "0000111f-0000-1000-8000-00805f9b34fb"
 
 RINGING = ("incoming", "waiting")
+GATEWAY = "org.pipewire.Telephony.AudioGateway1"
+
+
+def entries(objects):
+    """PipeWire exposes oFono object collections as a dict or an array of pairs."""
+    return objects.items() if isinstance(objects, dict) else objects
 
 
 def prop(props, key, default=""):
@@ -62,12 +68,12 @@ class Telephony:
         """Return (phones, calls). Both are empty when no phone is connected."""
         try:
             (modems,) = self._call(ROOT, "org.ofono.Manager", "GetModems")
-            phones = list(modems)
+            phones = [path for path, _ in entries(modems)]
             calls = []
             for phone in phones:
                 (found,) = self._call(phone, "org.ofono.VoiceCallManager", "GetCalls")
                 calls += [Call(path, prop(p, "LineIdentification"), prop(p, "Name"),
-                               prop(p, "State")) for path, p in found.items()]
+                               prop(p, "State")) for path, p in entries(found)]
             return phones, calls
         except DBusErrorResponse:
             # WirePlumber is restarting, or its telephony support is turned off.
@@ -75,7 +81,7 @@ class Telephony:
 
     def address(self, phone):
         (value,) = self._call(phone, "org.freedesktop.DBus.Properties", "Get", "ss",
-                              "org.pipewire.Telephony.AudioGateway1", "Address")
+                              GATEWAY, "Address")
         return value[1]
 
     def answer(self, call):
@@ -88,7 +94,7 @@ class Telephony:
         self._call(call.path, "org.ofono.VoiceCall", "Hangup")
 
     def dial(self, phone, number):
-        self._call(phone, "org.ofono.VoiceCallManager", "Dial", "s", number)
+        self._call(phone, GATEWAY, "Dial", "s", number)
 
     def send_tones(self, phone, tones):
         self._call(phone, "org.ofono.VoiceCallManager", "SendTones", "s", tones)
@@ -96,7 +102,7 @@ class Telephony:
     # PipeWire exposes microphone volume on AudioGateway1, rather than CallVolume.
     def _mic_volume(self, phone):
         (value,) = self._call(phone, "org.freedesktop.DBus.Properties", "Get", "ss",
-                              "org.pipewire.Telephony.AudioGateway1", "MicrophoneVolume")
+                              GATEWAY, "MicrophoneVolume")
         return value[1]
 
     def muted(self, phone):
@@ -109,7 +115,7 @@ class Telephony:
         elif not muted and not volume:
             volume = getattr(self, "_unmuted_volume", 15)
         self._call(phone, "org.freedesktop.DBus.Properties", "Set", "ssv",
-                   "org.pipewire.Telephony.AudioGateway1", "MicrophoneVolume",
+                   GATEWAY, "MicrophoneVolume",
                    ("y", 0 if muted else volume))
 
 

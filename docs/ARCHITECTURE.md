@@ -67,9 +67,10 @@ where Android serves PBAP.
 - **jeepney instead of QtDBus.** PySide's QtDBus returns nested D-Bus types such as `a(oa{sv})`
   as opaque `QDBusArgument` objects, which can't be unpacked from Python. jeepney is pure
   Python and decodes them into plain tuples and dicts.
-- **PipeWire's oFono compatibility interfaces.** These expose call state and control.
-  PipeWire's D-Bus signatures differ from oFono's for some methods. Mute uses the native
-  `AudioGateway1.MicrophoneVolume` property and restores the previous volume on unmute.
+- **PipeWire's oFono compatibility interfaces.** These expose call state and control,
+  but object collections have different signatures across PipeWire versions. Dialing and
+  mute use the native `AudioGateway1` interface to avoid incompatible oFono signatures.
+  Unmute restores the previous microphone volume.
   This property is not available in upstream PipeWire 1.4; use system mute there.
 - **HFP only.** Connecting the whole device would also bring up A2DP, and the PC would take
   over the phone's media audio. `Device1.ConnectProfile` with the HFP Audio Gateway UUID avoids

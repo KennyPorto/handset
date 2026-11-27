@@ -1,3 +1,4 @@
+import pytest
 from jeepney.wrappers import DBusErrorResponse
 
 from handset.telephony import Call, Telephony, prop
@@ -33,10 +34,14 @@ def test_prop_unwraps_variants_and_falls_back():
     assert prop({}, "Muted", False) is False
 
 
-def test_state_lists_calls_of_every_phone():
+@pytest.mark.parametrize("as_dict", [True, False])
+def test_state_lists_calls_of_every_phone(as_dict):
     calls = {PHONE + "/call1": {"LineIdentification": variant("+351912345678"),
                                "Name": variant(""), "State": variant("incoming")}}
-    tel = FakeTelephony({"GetModems": ({PHONE: {}},), "GetCalls": (calls,)})
+    modems = {PHONE: {}}
+    if not as_dict:
+        modems, calls = list(modems.items()), list(calls.items())
+    tel = FakeTelephony({"GetModems": (modems,), "GetCalls": (calls,)})
 
     phones, found = tel.state()
 
@@ -81,4 +86,4 @@ def test_dial_uses_pipewire_single_argument():
     tel = FakeTelephony()
     tel.dial(PHONE, "123")
     assert tel.sent == [(PHONE, "Dial", ("123",))]
-    assert tel.signatures == [("org.ofono.VoiceCallManager", "s")]
+    assert tel.signatures == [("org.pipewire.Telephony.AudioGateway1", "s")]
