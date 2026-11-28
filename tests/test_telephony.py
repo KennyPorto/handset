@@ -1,3 +1,4 @@
+import pytest
 from jeepney.wrappers import DBusErrorResponse
 
 from handset.telephony import Call, Telephony, prop
@@ -12,9 +13,11 @@ class FakeTelephony(Telephony):
         super().__init__(conn=object())
         self.replies = replies or {}
         self.sent = []
+        self.signatures = []
 
     def _call(self, path, interface, method, signature=None, *args):
         self.sent.append((path, method, args))
+        self.signatures.append((interface, signature))
         reply = self.replies.get(method)
         if isinstance(reply, Exception):
             raise reply
@@ -31,10 +34,14 @@ def test_prop_unwraps_variants_and_falls_back():
     assert prop({}, "Muted", False) is False
 
 
-def test_state_lists_calls_of_every_phone():
-    calls = [(PHONE + "/call1", {"LineIdentification": variant("+351912345678"),
-                                 "Name": variant(""), "State": variant("incoming")})]
-    tel = FakeTelephony({"GetModems": ([(PHONE, {})],), "GetCalls": (calls,)})
+@pytest.mark.parametrize("as_dict", [True, False])
+def test_state_lists_calls_of_every_phone(as_dict):
+    calls = {PHONE + "/call1": {"LineIdentification": variant("+351912345678"),
+                               "Name": variant(""), "State": variant("incoming")}}
+    modems = {PHONE: {}}
+    if not as_dict:
+        modems, calls = list(modems.items()), list(calls.items())
+    tel = FakeTelephony({"GetModems": (modems,), "GetCalls": (calls,)})
 
     phones, found = tel.state()
 
@@ -63,10 +70,20 @@ def test_answering_a_waiting_call_puts_the_current_one_on_hold():
 
 
 def test_mute_sets_mic_volume_to_zero_and_unmute_restores_it():
-    tel = FakeTelephony({"GetProperties": ({"MicrophoneVolume": ("y", 80)},)})
+    tel = FakeTelephony({"Get": (("y", 8),)})
     tel.set_muted(PHONE, True)
-    assert tel.sent[-1] == (PHONE, "SetProperty", ("MicrophoneVolume", ("y", 0)))
-    tel.replies["GetProperties"] = ({"MicrophoneVolume": ("y", 0)},)
+    assert tel.sent[-1] == (PHONE, "Set", ("org.pipewire.Telephony.AudioGateway1",
+                                         "MicrophoneVolume", ("y", 0)))
+    assert tel.signatures[-1] == ("org.freedesktop.DBus.Properties", "ssv")
+    tel.replies["Get"] = (("y", 0),)
     assert tel.muted(PHONE)
     tel.set_muted(PHONE, False)
-    assert tel.sent[-1] == (PHONE, "SetProperty", ("MicrophoneVolume", ("y", 80)))
+    assert tel.sent[-1] == (PHONE, "Set", ("org.pipewire.Telephony.AudioGateway1",
+                                         "MicrophoneVolume", ("y", 8)))
+
+
+def test_dial_uses_pipewire_single_argument():
+    tel = FakeTelephony()
+    tel.dial(PHONE, "123")
+    assert tel.sent == [(PHONE, "Dial", ("123",))]
+    assert tel.signatures == [("org.pipewire.Telephony.AudioGateway1", "s")]
