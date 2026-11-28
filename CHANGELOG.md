@@ -6,9 +6,12 @@ All notable changes to Handset are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-28
+
 ### Fixed
 
-- Handle PipeWire's telephony D-Bus responses, dialing and microphone volume interface.
+- Handset no longer crashes at startup on PipeWire 1.6.0 (for example on KDE neon) when a phone is connected: it now reads both formats of PipeWire's telephony replies.
+- Dialing and mute now use PipeWire's own telephony interface, which works the same across PipeWire versions. Mute needs PipeWire 1.6 or later; on 1.4, mute from the system sound controls.
 
 ## [0.1.1] - 2026-11-26
 
