@@ -13,9 +13,10 @@
   <img src="docs/screenshots/contacts.png" width="280" alt="Favourites and recent calls">
 </p>
 
-I spend most of the day with a headset on, and my phone is usually across the room when it
-rings. Handset makes the PC act like a car's hands-free kit: the phone stays where it is, the
-call comes through on the computer, and I answer it with one click.
+I spend most of the day at my desk with a headset on. When my phone rings, I don't want to
+take the headset off and reach for the phone. Handset makes the PC act like a car's hands-free
+kit: the call comes through on the computer, I answer it with one click and talk through my
+headset, and the phone's other sounds stay on the phone.
 
 ## Features
 
